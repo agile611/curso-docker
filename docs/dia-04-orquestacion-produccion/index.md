@@ -1,4 +1,4 @@
-# Día 4 · Orquestación y producción
+# Día 4 · Orquestación y Producción
 
 ## Objetivos del día
 
@@ -99,6 +99,126 @@ docker service create \
   --config source=nginx_config,target=/etc/nginx/conf.d/default.conf \
   ghcr.io/owner/api:latest
 ```
+
+---
+
+## Sesión práctica 4.1: Docker Swarm
+
+### Objetivo
+Desplegar y gestionar aplicaciones en Docker Swarm: servicios, stacks, rolling updates, rollback.
+
+### Duración: 60 minutos
+
+### Pasos guiados
+
+#### 1. Inicializar Swarm
+```bash
+# En manager
+docker swarm init --advertise-addr $(hostname -I | awk '{print $1}')
+
+# Ver token para workers
+docker swarm join-token worker
+
+# Ver nodos
+docker node ls
+```
+
+#### 2. Crear red overlay
+```bash
+docker network create --driver overlay --attachable mi-overlay
+```
+
+#### 3. Crear secrets
+```bash
+echo "prod-db-pass" | docker secret create db_password -
+echo "prod-jwt-secret" | docker secret create jwt_secret -
+docker secret ls
+```
+
+#### 4. Deploy stack
+```bash
+# Usar compose files del día 2-3
+docker stack deploy -c docker-compose.yml -c docker-compose.prod.yml curso-swarm
+
+# Ver servicios
+docker stack services curso-swarm
+
+# Ver tasks (contenedores reales)
+docker stack ps curso-swarm
+```
+
+#### 5. Operaciones comunes
+```bash
+# Escalar
+docker service scale curso-swarm_api=5
+
+# Actualizar imagen (rolling update)
+docker service update --image ghcr.io/owner/api:v1.1.0 curso-swarm_api
+
+# Ver progreso rolling update
+docker service ps curso-swarm_api --no-trunc
+
+# Rollback
+docker service rollback curso-swarm_api
+
+# Logs agregados
+docker service logs -f curso-swarm_api
+
+# Inspeccionar servicio
+docker service inspect curso-swarm_api --pretty
+```
+
+#### 6. Test failover
+```bash
+# Matar un task
+TASK_ID=$(docker service ps curso-swarm_api -q | head -1)
+CONTAINER_ID=$(docker inspect -f '{{.Status.ContainerStatus.ContainerID}}' $TASK_ID)
+docker kill $CONTAINER_ID
+
+# Verificar reschedule
+docker service ps curso-swarm_api
+```
+
+#### 7. Limpieza
+```bash
+docker stack rm curso-swarm
+docker secret rm db_password jwt_secret
+```
+
+### Ejercicios de práctica
+
+1. **Ejercicio 1**: Desplegar un stack con 3 servicios y probar escalado automático
+2. **Ejercicio 2**: Realizar rolling update y rollback manual
+3. **Ejercicio 3**: Simular fallo de nodo y verificar reschedule
+
+### Verificación
+```bash
+# validate.sh lab-4-1
+#!/usr/bin/env bash
+set -euo pipefail
+
+echo "1. Swarm inicializado..."
+docker node ls | grep -q Leader
+
+echo "2. Red overlay creada..."
+docker network ls | grep -q overlay
+
+echo "3. Secrets creados..."
+docker secret ls | grep -q db_password
+docker secret ls | grep -q jwt_secret
+
+echo "4. Stack deploy..."
+docker stack deploy -c docker-compose.yml -c docker-compose.prod.yml test-swarm
+sleep 15
+docker stack services test-swarm | grep -q "3/3"
+docker stack rm test-swarm
+
+echo "✅ Laboratorio 4.1 completado correctamente"
+```
+
+---
+
+## 4.2 Kubernetes: introducción práctica con kind/k3d
 
 ### Routing Mesh & Ingress
 

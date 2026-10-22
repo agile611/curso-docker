@@ -1,4 +1,4 @@
-# Día 5 · Proyecto final integrador
+# Día 5 · Proyecto Final Integrador
 
 ## Objetivos del día
 
@@ -64,6 +64,123 @@
 - [ ] Grafana: dashboards importados (K8s cluster, Node Exporter, Pod Resources) + custom app dashboard
 - [ ] Alertas: PrometheusRule (HighErrorRate, HighLatency, PodRestarts, PodNotReady)
 - [ ] Alertmanager: routing a Slack/PagerDuty, inhibition rules
+
+---
+
+## Sesión práctica 5.1: Pipeline completo end-to-end
+
+### Objetivo
+Ejecutar el pipeline completo desde commit hasta staging deploy, validando cada etapa.
+
+### Duración: 90 minutos
+
+### Pasos
+
+```bash
+# 1. Commit final con todos los cambios
+git add -A
+git commit -m "feat: final integration - all components production-ready"
+git tag -a v1.0.0 -m "Release v1.0.0 - Curso Docker Fundamentals"
+git push origin main --tags
+
+# 2. Verificar pipeline CI en GitHub Actions
+# - Lint: hadolint, yamllint, checkov ✅
+# - Build: multi-arch push GHCR ✅
+# - Test: unit + integration ✅
+# - Scan: Trivy 0 HIGH/CRITICAL ✅
+# - Sign: cosign keyless ✅
+# - SBOM: SPDX + CycloneDX ✅
+
+# 3. Verificar deploy staging (CD)
+# - Kind cluster creado ✅
+# - Monitoring stack instalado ✅
+# - Helm chart deployed ✅
+# - Smoke tests passing ✅
+# - Métricas en Prometheus ✅
+# - Logs en Loki ✅
+
+# 4. Validación manual rápida
+kubectl get pods -n production
+curl -f https://staging.taskflow.example.com/healthz
+curl -f https://api.staging.taskflow.example.com/healthz
+
+# 5. Verificar observabilidad
+# - Grafana: dashboard "TaskFlow - Overview" verde
+# - Prometheus: targets UP
+# - Loki: logs fluyendo
+# - Tempo: traces visibles (si instrumentado)
+
+# 6. Test rollback
+helm rollback taskflow -n production
+kubectl rollout status deployment/taskflow-api -n production
+
+# 7. Test escalado
+kubectl scale deployment taskflow-api --replicas=10 -n production
+kubectl get hpa taskflow-api -n production
+```
+
+### Script de validación completa
+
+```bash
+#!/usr/bin/env bash
+# validate-final.sh
+set -euo pipefail
+
+echo "=== VALIDACIÓN FINAL PROYECTO ==="
+
+# 1. Estructura repo
+echo "1. Estructura repo..."
+[[ -f .github/workflows/ci.yml ]] || exit 1
+[[ -f .github/workflows/cd.yml ]] || exit 1
+[[ -d apps/frontend && -d apps/api && -d apps/worker ]] || exit 1
+[[ -d charts/taskflow ]] || exit 1
+[[ -f docker-compose.yml ]] || exit 1
+[[ -f Makefile ]] || exit 1
+[[ -f README.md ]] || exit 1
+[[ -f .hadolint.yaml ]] || exit 1
+[[ -f .trivyignore ]] || exit 1
+[[ -f policy/trivy.rego ]] || exit 1
+echo "✅ Estructura OK"
+
+# 2. Dockerfiles hardened
+echo "2. Dockerfiles hardened..."
+for svc in frontend api worker; do
+  grep -q '^USER ' apps/$svc/Dockerfile || { echo "❌ $svc sin USER"; exit 1; }
+  grep -q 'HEALTHCHECK' apps/$svc/Dockerfile || { echo "❌ $svc sin HEALTHCHECK"; exit 1; }
+  hadolint --failure-threshold=warning apps/$svc/Dockerfile || exit 1
+done
+echo "✅ Dockerfiles OK"
+
+# 3. Helm chart
+echo "3. Helm chart..."
+[[ -f charts/taskflow/Chart.yaml ]] || exit 1
+[[ -f charts/taskflow/values-prod.yaml ]] || exit 1
+helm template test charts/taskflow -n production -f values-prod.yaml >/dev/null || exit 1
+echo "✅ Helm OK"
+
+# 4. Pipeline CI
+echo "4. Pipeline CI..."
+echo "   Verificar en GitHub Actions: all green"
+
+# 5. Observabilidad
+echo "5. Observabilidad..."
+echo "   Verificar: Prometheus, Grafana, Loki, Tempo running"
+
+# 6. Documentación
+echo "6. Documentación..."
+[[ -f docs/adr/001-compose-strategy.md ]] || exit 1
+[[ -f docs/adr/002-hardening-level.md ]] || exit 1
+[[ -f docs/adr/003-security-pipeline.md ]] || exit 1
+[[ -f docs/adr/004-orchestration-platform.md ]] || exit 1
+[[ -f docs/adr/005-observability-stack.md ]] || exit 1
+[[ -f docs/runbooks/deploy-staging.md ]] || exit 1
+[[ -f docs/runbooks/rollback.md ]] || exit 1
+[[ -f docs/runbooks/scaling.md ]] || exit 1
+[[ -f docs/runbooks/incident-response.md ]] || exit 1
+echo "✅ Documentación OK"
+
+echo "✅ PROYECTO FINAL VALIDADO"
+```
 
 ---
 

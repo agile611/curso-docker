@@ -1,4 +1,4 @@
-# Día 3 · Seguridad, buenas prácticas y CI/CD
+# Día 3 · Seguridad, CI/CD y Supply Chain
 
 ## Objetivos del día
 
@@ -97,6 +97,166 @@ docker run --security-opt apparmor=mi-perfil mi-imagen
 ```
 
 ### gVisor / Kata Containers (aislamiento fuerte)
+
+| Runtime | Aislamiento | Performance | Caso de uso |
+|---------|-------------|-------------|-------------|
+| `runc` (default) | Namespaces + cgroups | Nativa | General |
+| `runsc` (gVisor) | Userspace kernel (ptrace/kvm) | -10-30% | Multi-tenant, untrusted code |
+| `kata-runtime` | Micro-VM (KVM) | -5-15% | Alta seguridad, compliance |
+
+---
+
+## Sesión práctica 3.1: Hardening de contenedores
+
+### Objetivo
+Aplicar hardening completo a contenedores: non-root, read-only, capabilities drop, seccomp.
+
+### Duración: 60 minutos
+
+### Pasos guiados
+
+#### 1. Verificar imagen base (sin hardening)
+```bash
+# Construir imagen sin hardening
+cat > Dockerfile.baseline <<'EOF'
+FROM node:20-alpine
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci
+COPY . .
+RUN npm run build
+CMD ["node", "dist/server.js"]
+EOF
+
+docker build -t api:baseline -f Dockerfile.baseline ./apps/api
+
+# Verificar usuario root
+docker run --rm api:baseline id
+# uid=0(root) gid=0(root)
+```
+
+#### 2. Aplicar non-root user
+```dockerfile
+# Dockerfile.nonroot
+FROM node:20-alpine
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci
+COPY . .
+RUN npm run build
+
+# Non-root
+RUN addgroup -g 1001 -S appgroup && adduser -S -u 1001 -G appgroup appuser
+USER appuser
+
+CMD ["node", "dist/server.js"]
+```
+
+```bash
+docker build -t api:nonroot -f Dockerfile.nonroot ./apps/api
+docker run --rm api:nonroot id
+# uid=1001(appuser) gid=1001(appgroup)
+```
+
+#### 3. Aplicar read-only + tmpfs
+```dockerfile
+# Dockerfile.readonly
+FROM node:20-alpine
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci
+COPY . .
+RUN npm run build
+
+RUN addgroup -g 1001 -S appgroup && adduser -S -u 1001 -G appgroup appuser
+
+# Preparar dirs writables
+USER root
+RUN mkdir -p /tmp/app /var/run/app && chown -R appuser:appgroup /tmp/app /var/run/app
+USER appuser
+
+CMD ["node", "dist/server.js"]
+```
+
+```bash
+docker build -t api:readonly -f Dockerfile.readonly ./apps/api
+
+# Test read-only
+docker run --rm --read-only --tmpfs /tmp:rw,noexec,nosuid,size=50m --tmpfs /var/run:rw,size=10m api:readonly touch /tmp/test  # OK
+docker run --rm --read-only api:readonly touch /test  # Error
+```
+
+#### 4. Capabilities drop
+```bash
+# Sin capabilities (runtime)
+docker run --rm --cap-drop=ALL api:readonly sh -c 'capsh --print'
+# Current: = (ninguna)
+```
+
+#### 5. Seccomp personalizado
+```json
+// seccomp-profile.json
+{
+  "defaultAction": "SCMP_ACT_ALLOW",
+  "syscalls": [
+    {"names": ["mount", "umount2", "pivot_root", "reboot", "kexec_load", "bpf", "keyctl"], "action": "SCMP_ACT_ERRNO"}
+  ]
+}
+```
+
+```bash
+docker run --rm --security-opt seccomp=seccomp-profile.json api:readonly sh -c 'mount'  # Error: Operation not permitted
+```
+
+#### 6. gVisor (runtime alternativo)
+```bash
+# Instalar gVisor
+curl -fsSL https://gvisor.dev/archive.key | sudo gpg --dearmor -o /usr/share/keyrings/gvisor-archive-keyring.gpg
+echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/gvisor-archive-keyring.gpg] https://storage.googleapis.com/gvisor/releases release main" | sudo tee /etc/apt/sources.list.d/gvisor.list
+sudo apt update && sudo apt install runsc
+runsc install
+sudo systemctl restart docker
+
+# Usar
+docker run --rm --runtime=runsc api:readonly uname -a
+# Kernel: gVisor (no Linux host)
+```
+
+### Ejercicios de práctica
+
+1. **Ejercicio 1**: Aplicar hardening completo a los 3 servicios del proyecto (frontend, api, worker)
+2. **Ejercicio 2**: Crear perfil seccomp personalizado que bloquee `ptrace` y `process_vm_writev`
+3. **Ejercicio 3**: Comparar performance entre runc, gVisor y Kata Containers
+
+### Verificación
+```bash
+# validate.sh lab-3-1
+#!/usr/bin/env bash
+set -euo pipefail
+
+echo "1. Imagen baseline vs hardened..."
+docker image inspect api:baseline --format '{{.Config.User}}' | grep -q '^$' || exit 1
+docker image inspect api:nonroot --format '{{.Config.User}}' | grep -q '1001' || exit 1
+
+echo "2. Read-only funciona..."
+docker run --rm --read-only --tmpfs /tmp:rw,noexec,nosuid,size=10m api:readonly touch /tmp/ok
+! docker run --rm --read-only api:readonly touch /fail 2>/dev/null || exit 1
+
+echo "3. Capabilities dropped..."
+docker run --rm --cap-drop=ALL api:readonly sh -c 'capsh --print' | grep -q 'Current: ='
+
+echo "4. Seccomp bloquea syscalls peligrosas..."
+docker run --rm --security-opt seccomp=seccomp-profile.json api:readonly mount 2>&1 | grep -q 'Operation not permitted'
+
+echo "5. gVisor runtime funciona..."
+docker run --rm --runtime=runsc api:readonly uname -a | grep -q gVisor
+
+echo "✅ Laboratorio 3.1 completado correctamente"
+```
+
+---
+
+## 3.2 Secrets: BuildKit, runtime, SOPS, Vault
 
 ```bash
 # gVisor (runsc) - userspace kernel

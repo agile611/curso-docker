@@ -1,10 +1,10 @@
-site_name: "Curso de Prompt Engineering"
-site_description: "Curso práctico de Prompt Engineering en 5 días y 30 horas"
+site_name: "Curso Docker Fundamentals"
+site_description: "Curso práctico de Docker en 5 días y 30 horas - Contenedores, Kubernetes, CI/CD, Seguridad, Observabilidad"
 site_author: "Guillem Hernández Sola"
-site_url: "https://docs.agile611.com/curso-prompt-engineering/"
+site_url: "https://docs.agile611.com/curso-docker-fundamentals/"
 
-repo_name: "agile611/curso-prompt-engineering"
-repo_url: "https://github.com/agile611/curso-prompt-engineering"
+repo_name: "agile611/curso-docker"
+repo_url: "https://github.com/agile611/curso-docker"
 
 docs_dir: "docs"
 site_dir: "site"
@@ -49,7 +49,7 @@ theme:
         name: "Cambiar a modo claro"
 
   icon:
-    logo: material/chart-timeline-variant
+    logo: material/docker
     repo: fontawesome/brands/github
 
 markdown_extensions:
@@ -98,68 +98,68 @@ nav:
   - "Inicio": index.md
 
   - "Guía del curso":
-      - "Programa y calendario": guia-del-curso/programa.md
-      - "Objetivos de aprendizaje": guia-del-curso/objetivos.md
-      - "Metodología": guia-del-curso/metodologia.md
-      - "Preparación y herramientas": guia-del-curso/preparacion.md
+      - "Programa y calendario": guia-del-curso/01-programa-calendario.md
+      - "Objetivos de aprendizaje": guia-del-curso/02-objetivos-aprendizaje.md
+      - "Metodología": guia-del-curso/03-metodologia.md
+      - "Preparación y herramientas": guia-del-curso/04-preparacion-herramientas.md
 
   - "Temario":
-      - "1 · Fundamentos":
+      - "1 · Fundamentos y ciclo de vida":
           - dia-01-fundamentos/index.md
-          - "Introducción y diagnóstico": dia-01-fundamentos/01-introduccion-y-diagnostico.md
-          - "Funcionamiento y limitaciones": dia-01-fundamentos/02-funcionamiento-y-limitaciones.md
-          - "Anatomía del prompt": dia-01-fundamentos/03-anatomia-del-prompt.md
-          - "Taller de prompts": dia-01-fundamentos/04-taller-de-prompts.md
-          - "Caso de uso y entregable": dia-01-fundamentos/05-caso-de-uso-y-entregable.md
+          - "Introducción a contenedores": dia-01-fundamentos/01-introduccion-contenedores.md
+          - "Imágenes, capas y cache": dia-01-fundamentos/02-imagenes-capas-cache.md
+          - "Dockerfile instrucciones": dia-01-fundamentos/03-dockerfile-instrucciones.md
+          - "Taller Dockerfiles": dia-01-fundamentos/04-taller-dockerfiles.md
+          - "Entregable día 1": dia-01-fundamentos/05-entregable-dia1.md
 
-      - "2 · Técnicas y formatos":
-          - dia-02-tecnicas/index.md
-          - "Zero-shot y few-shot": dia-02-tecnicas/01-zero-shot-y-few-shot.md
-          - "Descomposición y verificación": dia-02-tecnicas/02-descomposicion-y-verificacion.md
-          - "Roles, tono y formatos": dia-02-tecnicas/03-roles-tono-y-formatos.md
-          - "Laboratorio comparativo": dia-02-tecnicas/04-laboratorio-comparativo.md
-          - "Biblioteca de prompts": dia-02-tecnicas/05-biblioteca-de-prompts.md
+      - "2 · Redes, almacenamiento y Compose":
+          - dia-02-redes-almacenamiento-compose/index.md
+          - "Networking profundo": dia-02-redes-almacenamiento-compose/01-networking-profundo.md
+          - "Almacenamiento persistente": dia-02-redes-almacenamiento-compose/02-almacenamiento-persistente.md
+          - "Compose avanzado": dia-02-redes-almacenamiento-compose/03-compose-avanzado.md
+          - "Laboratorio comparativo": dia-02-redes-almacenamiento-compose/04-laboratorio-comparativo.md
 
-      - "3 · Evaluación y seguridad":
-          - dia-03-evaluacion-y-seguridad/index.md
-          - "Diseño de pruebas": dia-03-evaluacion-y-seguridad/01-diseno-de-pruebas.md
-          - "Refinamiento y versionado": dia-03-evaluacion-y-seguridad/02-refinamiento-y-versionado.md
-          - "Fiabilidad, sesgos y privacidad": dia-03-evaluacion-y-seguridad/03-fiabilidad-sesgos-y-privacidad.md
-          - "Seguridad y prompt injection": dia-03-evaluacion-y-seguridad/04-seguridad-y-prompt-injection.md
-          - "Laboratorio de evaluación": dia-03-evaluacion-y-seguridad/05-laboratorio-de-evaluacion.md
+      - "3 · Seguridad, CI/CD y Supply Chain":
+          - dia-03-seguridad-ci-cd/index.md
+          - "Hardening contenedores": dia-03-seguridad-ci-cd/01-hardening-contenedores.md
+          - "Secrets y Supply Chain": dia-03-seguridad-ci-cd/02-secrets-supply-chain.md
+          - "Escaneo y Pipeline": dia-03-seguridad-ci-cd/03-escaneo-pipeline.md
+          - "Laboratorio comparativo": dia-03-seguridad-ci-cd/04-laboratorio-comparativo.md
+          - "Integración final": dia-03-seguridad-ci-cd/05-integracion-final.md
 
-      - "4 · Aplicaciones profesionales":
-          - dia-04-aplicaciones/index.md
-          - "Comunicación y creatividad": dia-04-aplicaciones/01-comunicacion-y-creatividad.md
-          - "Extracción y análisis": dia-04-aplicaciones/02-extraccion-y-analisis.md
-          - "Código y asistencia técnica": dia-04-aplicaciones/03-codigo-y-asistencia-tecnica.md
-          - "Diseño de flujos": dia-04-aplicaciones/04-diseno-de-flujos.md
-          - "Desarrollo del prototipo": dia-04-aplicaciones/05-desarrollo-del-prototipo.md
+      - "4 · Orquestación y Producción":
+          - dia-04-orquestacion-produccion/index.md
+          - "Swarm y Kubernetes": dia-04-orquestacion-produccion/01-swarm-kubernetes.md
+          - "Recursos Kubernetes": dia-04-orquestacion-produccion/02-kubernetes-recursos.md
+          - "Helm y Observabilidad": dia-04-orquestacion-produccion/03-helm-observabilidad.md
+          - "Laboratorio comparativo": dia-04-orquestacion-produccion/04-laboratorio-comparativo.md
+          - "Integración final": dia-04-orquestacion-produccion/05-integracion-final.md
 
-      - "5 · Proyecto e integración":
-          - dia-05-proyecto/index.md
-          - "Construcción final": dia-05-proyecto/01-construccion-final.md
-          - "Pruebas y correcciones": dia-05-proyecto/02-pruebas-y-correcciones.md
-          - "Documentación y entrega": dia-05-proyecto/03-documentacion-y-entrega.md
-          - "Presentaciones y revisión": dia-05-proyecto/04-presentaciones-y-revision.md
-          - "Transferencia al trabajo": dia-05-proyecto/05-transferencia-al-trabajo.md
+      - "5 · Proyecto Final Integrador":
+          - dia-05-proyecto-final/00-proyecto-final.md
 
-  - "Proyecto final":
-      - proyecto-final/index.md
-      - "Casos de uso": proyecto-final/casos-de-uso.md
-      - "Requisitos y entregables": proyecto-final/requisitos-y-entregables.md
-      - "Guía de presentación": proyecto-final/guia-de-presentacion.md
+  - "Proyecto Final":
+      - proyecto-final/00-proyecto-final.md
+      - "Casos de uso": proyecto-final/01-casos-de-uso.md
+      - "Requisitos y entregables": proyecto-final/02-requisitos-entregables.md
+      - "Guía de presentación": proyecto-final/03-guia-presentacion.md
 
   - "Plantillas":
       - plantillas/index.md
-      - "Ficha de prompt": plantillas/ficha-de-prompt.md
-      - "Ficha de caso de uso": plantillas/ficha-de-caso-de-uso.md
-      - "Biblioteca de prompts": plantillas/biblioteca-de-prompts.md
-      - "Matriz de evaluación": plantillas/matriz-de-evaluacion.md
-      - "Registro de versiones": plantillas/registro-de-versiones.md
-      - "Checklist de seguridad": plantillas/checklist-de-seguridad.md
+      - "00 Instalación Docker Ubuntu 24.04": plantillas/00-instalacion-docker-ubuntu24.md
+      - "01 Dockerfile Base": plantillas/01-dockerfile-base.md
+      - "02 Dockerfile Multi-stage": plantillas/02-dockerfile-multistage.md
+      - "03 Dockerfile Distroless": plantillas/03-dockerfile-distroless.md
+      - "04 Dockerfile Scratch": plantillas/04-dockerfile-scratch.md
+      - "05 Docker Compose Base": plantillas/05-docker-compose-base.md
+      - "06 Docker Compose Override": plantillas/06-docker-compose-override.md
+      - "07 Docker Compose Prod": plantillas/07-docker-compose-prod.md
+      - "08 Docker Compose CI": plantillas/08-docker-compose-ci.md
+      - "09 Dockerignore": plantillas/09-dockerignore.md
+      - "10 Hadolint Config": plantillas/10-hadolint-config.md
 
-  - "Recursos":
-      - "Glosario": recursos/glosario.md
-      - "Herramientas": recursos/herramientas.md
-      - "Lecturas": recursos/lecturas.md
+  - "Guía del curso":
+      - "Programa y calendario": guia-del-curso/01-programa-calendario.md
+      - "Objetivos de aprendizaje": guia-del-curso/02-objetivos-aprendizaje.md
+      - "Metodología": guia-del-curso/03-metodologia.md
+      - "Preparación y herramientas": guia-del-curso/04-preparacion-herramientas.md

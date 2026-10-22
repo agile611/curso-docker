@@ -71,6 +71,124 @@ docker rmi mi-usuario/mi-alpine:v1 mi-usuario/mi-alpine:latest
 
 ---
 
+## Sesión práctica 1.1: Primeros pasos con Docker
+
+### Objetivo
+Familiarizarse con los comandos básicos de Docker: pull, run, inspect, history, commit, tag, push.
+
+### Duración: 45 minutos
+
+### Pasos guiados
+
+#### 1. Explorar imágenes oficiales
+```bash
+# Buscar imágenes en Docker Hub
+docker search alpine --filter is-official=true --limit 5
+
+# Pull de una versión específica
+docker pull alpine:3.20
+
+# Verificar que se descargó
+docker images alpine
+```
+
+#### 2. Ejecutar contenedores
+```bash
+# Ejecución simple
+docker run --rm alpine:3.20 echo "Hola desde contenedor"
+
+# Ejecución interactiva
+docker run --rm -it alpine:3.20 sh
+
+# En el shell del contenedor:
+# echo "Dentro del contenedor"
+# apk add --no-cache curl
+# curl -s https://httpbin.org/get
+# exit
+```
+
+#### 3. Inspeccionar imágenes y capas
+```bash
+# Ver capas de la imagen
+docker image inspect alpine:3.20 | jq '.[0].RootFS.Layers'
+
+# Ver historial de capas
+docker history alpine:3.20
+
+# Ver metadatos completos
+docker image inspect alpine:3.20 | jq '.[0].Config'
+```
+
+#### 4. Crear imagen propia con commit
+```bash
+# Crear contenedor base
+docker run -d --name mi-alpine alpine:3.20 sleep 3600
+
+# Modificar el contenedor
+docker exec mi-alpine sh -c 'echo "capa extra" > /extra.txt'
+docker exec mi-alpine ls -la /extra.txt
+
+# Crear imagen a partir del contenedor
+docker commit mi-alpine mi-usuario/mi-alpine:v1
+
+# Verificar nueva imagen
+docker history mi-usuario/mi-alpine:v1
+docker images mi-usuario/mi-alpine
+```
+
+#### 5. Etiquetar y subir a registry
+```bash
+# Etiquetar para registry
+docker tag mi-usuario/mi-alpine:v1 mi-usuario/mi-alpine:latest
+
+# Login en Docker Hub (requiere cuenta)
+# docker login
+
+# Subir imagen
+docker push mi-usuario/mi-alpine:v1
+
+# Verificar en registry
+docker manifest inspect mi-usuario/mi-alpine:v1
+```
+
+#### 6. Limpieza
+```bash
+# Eliminar contenedor
+docker rm -f mi-alpine
+
+# Eliminar imágenes locales
+docker rmi mi-usuario/mi-alpine:v1 mi-usuario/mi-alpine:latest
+
+# Verificar limpieza
+docker images mi-usuario/mi-alpine
+```
+
+### Ejercicios de práctica
+
+1. **Ejercicio 1**: Crear una imagen basada en `nginx:alpine` que sirva un archivo HTML personalizado
+2. **Ejercicio 2**: Crear un contenedor que ejecute un script Python simple y hacer commit
+3. **Ejercicio 3**: Etiquetar la imagen con versión semántica (v1.0.0, v1.1.0, etc.)
+
+### Verificación
+```bash
+# validate.sh lab-1-1
+#!/usr/bin/env bash
+set -euo pipefail
+
+echo "Verificando laboratorio 1.1..."
+
+# Verificar que existe imagen personalizada en registry
+docker manifest inspect mi-usuario/mi-alpine:v1 >/dev/null 2>&1 || { echo "❌ Imagen no encontrada en registry"; exit 1; }
+
+echo "✅ Laboratorio 1.1 completado correctamente"
+```
+
+---
+
+## 1.2 Imágenes: capas, union filesystem, cache, tags, digests
+
+---
+
 ## 1.2 Imágenes: capas, union filesystem, cache, tags, digests
 
 ### Capas y cache

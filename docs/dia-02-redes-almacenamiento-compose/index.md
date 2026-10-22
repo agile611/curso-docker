@@ -81,23 +81,145 @@ Contenedor en red "mi-red":
 
 ---
 
-## 2.2 Almacenamiento: volúmenes, bind mounts, tmpfs, drivers
+## Sesión práctica 2.1: Networking Docker
 
-### Tipos de montaje
+### Objetivo
+Dominar la creación y gestión de redes Docker, service discovery y conectividad entre contenedores.
 
-| Tipo | Origen | Persistencia | Caso de uso |
-|------|--------|--------------|-------------|
-| **Named volume** | Docker gestiona (`/var/lib/docker/volumes/`) | Sí (survive container rm) | DB data, logs, uploads |
-| **Bind mount** | Path host absoluto | Sí (host path) | Código dev, config host, certs |
-| **tmpfs** | Memoria RAM | No (desaparece al parar) | Secrets runtime, cache, /tmp |
-| **Volume driver** | Plugin (NFS, S3, Ceph, etc.) | Sí | Multi-host, cloud storage |
+### Duración: 60 minutos
 
-### Named volumes
+### Pasos guiados
 
+#### 1. Explorar redes por defecto
 ```bash
-# Crear
-docker volume create --driver local \
-  --opt type=none \
+# Listar redes existentes
+docker network ls
+
+# Inspeccionar red bridge por defecto
+docker network inspect bridge
+
+# Ver contenedores conectados
+docker network inspect bridge --format '{{range .Containers}}{{.Name}} {{end}}'
+```
+
+#### 2. Crear redes personalizadas
+```bash
+# Crear red bridge con subnet personalizada
+docker network create --driver bridge \
+  --subnet=172.28.0.0/16 \
+  --gateway=172.28.0.1 \
+  --opt com.docker.network.bridge.name=br-mi-red \
+  mi-red
+
+# Verificar creación
+docker network inspect mi-red
+```
+
+#### 3. Conectar contenedores a la red
+```bash
+# Ejecutar contenedores en la red personalizada
+docker run -d --name api --network mi-red \
+  -e PORT=3000 \
+  ghcr.io/usuario/api:latest
+
+docker run -d --name frontend --network mi-red \
+  -e API_URL=http://api:3000 \
+  ghcr.io/usuario/frontend:latest
+
+# Verificar conectividad
+docker exec frontend ping -c 3 api
+docker exec frontend curl -s http://api:3000/healthz
+```
+
+#### 3. Service Discovery con DNS interno
+```bash
+# Ver /etc/hosts dentro del contenedor
+docker exec frontend cat /etc/hosts
+
+# Ver /etc/resolv.conf
+docker exec frontend cat /etc/resolv.conf
+
+# Probar resolución DNS
+docker exec frontend nslookup api
+docker exec frontend dig api.mi-red
+
+# Probar conectividad HTTP
+docker exec frontend curl -v http://api:3000/healthz
+```
+
+#### 4. Red host (solo Linux)
+```bash
+# Ejecutar con red del host
+docker run -d --network host --name mi-api-host ghcr.io/usuario/api:latest
+
+# Verificar acceso directo en localhost
+curl http://localhost:3000/healthz
+
+# Verificar puertos en host
+ss -tulpn | grep 3000
+```
+
+#### 5. Red overlay (requiere Swarm)
+```bash
+# Inicializar Swarm
+docker swarm init
+
+# Crear red overlay attachable
+docker network create --driver overlay --attachable mi-overlay
+
+# Desplegar servicios en la red overlay
+docker service create --name api-overlay --network mi-overlay ghcr.io/usuario/api:latest
+docker service create --name worker-overlay --network mi-overlay ghcr.io/usuario/worker:latest
+
+# Verificar DNS overlay
+docker exec $(docker ps -q -f name=worker-overlay) nslookup api-overlay
+```
+
+#### 6. Limpieza
+```bash
+# Eliminar contenedores
+docker rm -f api frontend
+
+# Eliminar redes
+docker network rm mi-red mi-overlay
+
+# Salir de Swarm
+docker swarm leave --force
+```
+
+### Ejercicios de práctica
+
+1. **Ejercicio 1**: Crear una red bridge con subnet `10.10.0.0/16` y desplegar 3 contenedores que se comuniquen entre sí
+2. **Ejercicio 2**: Configurar un contenedor con IP fija en la red personalizada
+3. **Ejercicio 3**: Probar conectividad entre contenedores en redes diferentes (bridge vs host)
+
+### Verificación
+```bash
+# validate.sh lab-2-1
+#!/usr/bin/env bash
+set -euo pipefail
+
+echo "Verificando laboratorio 2.1..."
+
+# Verificar red personalizada existe
+docker network inspect mi-red >/dev/null 2>&1 || { echo "❌ Red mi-red no existe"; exit 1; }
+
+# Verificar contenedores en la red
+docker network inspect mi-red --format '{{range .Containers}}{{.Name}} {{end}}' | grep -q "api" || { echo "❌ api no en red"; exit 1; }
+docker network inspect mi-red --format '{{range .Containers}}{{.Name}} {{end}}' | grep -q "frontend" || { echo "❌ frontend no en red"; exit 1; }
+
+# Verificar DNS
+docker exec frontend nslookup api >/dev/null 2>&1 || { echo "❌ DNS no resuelve"; exit 1; }
+
+# Verificar conectividad HTTP
+docker exec frontend curl -sf http://api:3000/healthz >/dev/null || { echo "❌ HTTP falla"; exit 1; }
+
+echo "✅ Laboratorio 2.1 completado correctamente"
+```
+
+---
+
+## 2.2 Almacenamiento: volúmenes, bind mounts, tmpfs, drivers
   --opt device=/mnt/data/postgres \
   --opt o=bind \
   pgdata
