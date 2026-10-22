@@ -1,0 +1,33 @@
+# Entorno virtual de Python
+.venv/
+.DS_Store
+.DS_store
+
+# Sitio generado por MkDocs
+site/
+
+mkdocs-error.log
+
+# Caché de Python
+__pycache__/
+*.py[cod]
+
+# Editores
+.vscode/
+.idea/
+
+.DS_Store
+# Archivos de configuración de VS Code
+.vscode/settings.json
+.vscode/launch.json
+# Archivos de configuración de PyCharm
+.idea/workspace.xml
+.idea/modules.xml
+.idea/misc.xml
+.DS_Store# Archivos de configuración de PyCharm
+.idea/workspace.xml
+.idea/modules.xml
+.idea/misc.xml
+# Archivos de configuración de VS Code
+.vscode/settings.json
+.vscode/launch.json
