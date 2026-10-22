@@ -1,65 +1,68 @@
-# Curso de Prompt Engineering
+# Curso de Docker Fundamentals
 
-Aprende a diseñar, probar y mejorar prompts para resolver tareas profesionales con modelos de lenguaje.
+Aprende a contenerizar aplicaciones, gestionar imágenes, orquestar contenedores y desplegar en producción con Docker.
 
-El curso combina explicaciones, laboratorios, revisión de resultados y un proyecto que evoluciona durante los cinco días.
+El curso combina teoría, laboratorios prácticos y un proyecto final que evoluciona durante los cinco días.
 
-La meta no es memorizar fórmulas para obtener respuestas llamativas.
+La meta no es memorizar comandos.
 
-La meta es construir instrucciones claras, comprobar su utilidad y reconocer las condiciones en las que sus resultados pueden utilizarse.
+La meta es entender el modelo de contenedores, aplicar buenas prácticas de seguridad y rendimiento, y automatizar despliegues reproducibles.
 
 **Duración:** 5 días · 30 horas.
 
-**Enfoque:** práctico, con laboratorios y proyecto final.
+**Enfoque:** práctico, con laboratorios guiados y proyecto final integrador.
 
-**Entorno básico:** una interfaz autorizada de LLM, un editor de texto y una hoja de cálculo.
+**Entorno básico:** Docker Desktop / Docker Engine, editor de código, terminal.
 
-**Entorno técnico opcional:** API, Python y Git.
+**Entorno técnico opcional:** Kubernetes (kind/k3d), CI/CD (GitHub Actions/GitLab CI), cloud provider (AWS/GCP/Azure).
 
 Esta página es el índice general del curso.
 
 Presenta el recorrido de aprendizaje, explica cómo utilizar los materiales y propone sesiones para acompañar el trabajo del alumnado.
 
-Las páginas de cada desarrollan las actividades y los contenidos específicos.
+Las páginas de cada día desarrollan las actividades y los contenidos específicos.
 
-Los ejemplos de este índice son originales y utilizan información sintética.
+Los ejemplos de este índice son originales y utilizan aplicaciones de ejemplo reales.
 
 Las referencias docentes describen expectativas, no resultados obtenidos mediante ejecuciones reales.
 
-**El aprendizaje se demuestra mediante instrucciones documentadas, pruebas conservadas y decisiones proporcionadas a la evidencia.**
+**El aprendizaje se demuestra mediante Dockerfiles documentados, imágenes publicadas, compose files versionados y pipelines funcionando.**
 
-### 2.5. Prompt Engineering y Prompt Scripting
+### 2.5. Contenedores vs. Máquinas Virtuales vs. Procesos Nativos
 
-El curso utiliza dos términos con significados distintos y complementarios.
+El curso clarifica tres modelos de ejecución con significados distintos y complementarios.
 
-**Prompt Engineering** comprende el diseño y la evaluación de instrucciones, ejemplos, fuentes, restricciones y contratos de salida para resolver una tarea concreta. Se centra en decidir qué debe pedir el sistema, qué información puede utilizar y cómo reconocer si la respuesta es útil o incorrecta.
+**Contenedores** aíslan procesos usando namespaces y cgroups del kernel Linux, compartiendo el kernel del host. Inician en milisegundos, consumen recursos mínimos y son inmutables por diseño.
 
-**Prompt Scripting** es la organización de prompts mediante plantillas, variables, condiciones, secuencias, validaciones y mecanismos de ejecución para construir procedimientos reutilizables. Puede implementarse de forma manual, con formularios o tablas, con automatizaciones o con código y APIs, según el contexto del proyecto.
+**Máquinas Virtuales** virtualizan hardware completo con su propio kernel. Aislamiento fuerte, pero overhead significativo de CPU, memoria y tiempo de arranque.
+
+**Procesos Nativos** se ejecutan directamente en el host sin aislamiento. Máximo rendimiento, pero sin garantías de reproducibilidad ni aislamiento de dependencias.
 
 La denominación puede variar entre herramientas y organizaciones, pero aquí se mantiene la diferencia operativa:
 
-- El Prompt Engineering define la lógica del trabajo con el lenguaje.
-- El Prompt Scripting define la estructura del procedimiento para repetirlo y documentarlo.
+- Los **contenedores** son la unidad de empaquetado y despliegue.
+- Las **imágenes** son el artefacto inmutable versionado.
+- Los **registries** son el almacén de distribución.
+- La **orquestación** gestiona el ciclo de vida en clústeres.
 
-No todo flujo de trabajo que use prompts requiere programación. Una plantilla bien documentada, con variables y validaciones, ya puede considerarse un script operativo si sirve para reproducir una tarea en un contexto determinado.
+Un caso común del curso es la contenerización de una aplicación web de tres servicios:
 
-Un caso común del curso es la preparación de una solicitud de formación:
+> "Frontend React servido por Nginx, API Node.js/Express con base de datos PostgreSQL, y worker Python para tareas asíncronas. Todo debe desplegarse con un solo comando y escalar independientemente."
 
-> “Participarán aproximadamente 12 personas. La modalidad será presencial. La duración será de dos horas. Proponemos el 18 de noviembre de 2026. La fecha todavía no está confirmada. No se indica presupuesto.”
-
-Este ejemplo permite practicar extracción, validación y redacción sin convertir la tarea en una operación de contratación o reserva. Se mantiene el contexto relevante y se excluyen acciones que no forman parte del alcance: confirmar disponibilidad, aprobar presupuestos, establecer precios, reservar servicios o enviar mensajes externos.
+Este ejemplo permite practicar multi-stage builds, docker-compose, networking, volúmenes, healthchecks y secrets sin convertir la tarea en una operación de infraestructura compleja. Se mantiene el contexto relevante y se excluyen acciones que no forman parte del alcance: provisión de clústeres Kubernetes, configuración de load balancers cloud, o gestión de certificados TLS públicos.
 
 !!! info "Antes de empezar"
     Consulta la [preparación del curso](guia-del-curso/preparacion.md).
     Revisa el [programa completo](guia-del-curso/programa.md).
-    Comprueba tu acceso al entorno autorizado.
-    Prepara una ubicación para conservar los materiales.
+    Comprueba tu acceso a Docker Hub / GHCR / registry privado.
+    Prepara una ubicación para conservar los materiales (repositorio Git).
 
-!!! warning "Privacidad"
-    Utiliza preferentemente datos sintéticos en las prácticas.
-    La sustitución de nombres por códigos no garantiza anonimización.
-    No introduzcas información confidencial sin autorización.
-    Revisa también las salidas, capturas y registros que conserves.
+!!! warning "Seguridad y costes"
+    Usa imágenes base oficiales y actualizadas (Alpine/Debian slim).
+    Escanea vulnerabilidades con `docker scout` o `trivy` antes de publicar.
+    No incluyas secrets en imágenes (usa build secrets / runtime secrets).
+    Limpia recursos no usados: `docker system prune -a --volumes`.
+    Monitoriza uso de disco: las capas no usadas consumen espacio.
 
 ---
 
@@ -73,31 +76,82 @@ Empieza por comprender el recorrido antes de seleccionar técnicas o herramienta
 
 - Consulta la preparación.
 - Revisa los objetivos y el programa.
-- Identifica las condiciones de trabajo disponibles.
+- Identifica las condiciones de trabajo disponibles (Docker Desktop, Engine remoto, CI/CD).
 
 ### 1.2. Navegación diaria
 
-Cada tiene una página de entrada que reúne su contenido específico.
+Cada día tiene una página de entrada que reúne su contenido específico.
 
-- Abre el índice del correspondiente.
+- Abre el índice del día correspondiente.
 - Localiza el laboratorio que vas a realizar.
-- Comprueba qué materiales debes conservar.
+- Comprueba qué materiales debes conservar (Dockerfiles, compose.yml, pipelines).
 
 ### 1.3. Materiales transversales
 
 Las plantillas y los recursos se utilizan durante todo el curso.
 
-- Las plantillas estructuran la documentación.
-- El glosario aclara conceptos.
+- Las plantillas estructuran la documentación (Dockerfile, compose, pipeline).
+- El glosario aclara conceptos (layer, registry, namespace, cgroup, overlayfs).
 - El proyecto conecta los aprendizajes diarios.
 
 ### 1.4. Consulta posterior
 
 El índice también permite recuperar métodos después del curso.
 
-- Vuelve al relacionado con tu necesidad.
+- Vuelve al día relacionado con tu necesidad.
 - Revisa las condiciones del ejemplo.
 - Adapta el procedimiento y vuelve a evaluarlo.
+
+---
+
+## 2. Estructura del curso
+
+| Día | Tema | Foco principal | Entregable clave |
+|-----|------|----------------|------------------|
+| 1 | **Fundamentos y ciclo de vida** | Imágenes, contenedores, Dockerfile, capas, cache | Dockerfile multi-stage optimizado |
+| 2 | **Redes, almacenamiento y Compose** | Bridge/overlay networks, volúmenes, bind mounts, docker-compose.yml | Stack 3 servicios con compose |
+| 3 | **Seguridad, buenas prácticas y CI/CD** | Non-root, read-only, secrets, scan, multi-arch, pipelines | Pipeline CI/CD con build, test, scan, push |
+| 4 | **Orquestación y producción** | Swarm mode intro, Kubernetes (kind), helm, observabilidad | Despliegue en kind con Helm chart |
+| 5 | **Proyecto final integrador** | Refactor, optimización, documentación, presentación | Repo completo listo para producción |
+
+---
+
+## 3. Navegación rápida
+
+### Guía del curso
+- [Programa y calendario](guia-del-curso/programa.md)
+- [Objetivos de aprendizaje](guia-del-curso/objetivos.md)
+- [Metodología](guia-del-curso/metodologia.md)
+- [Preparación y herramientas](guia-del-curso/preparacion.md)
+
+### Temario por días
+- [Día 1 · Fundamentos y ciclo de vida](dia-01-fundamentos/index.md)
+- [Día 2 · Redes, almacenamiento y Compose](dia-02-redes-almacenamiento-compose/index.md)
+- [Día 3 · Seguridad, buenas prácticas y CI/CD](dia-03-seguridad-ci-cd/index.md)
+- [Día 4 · Orquestación y producción](dia-04-orquestacion-produccion/index.md)
+- [Día 5 · Proyecto final integrador](dia-05-proyecto-final/index.md)
+
+### Proyecto final
+- [Visión general](proyecto-final/index.md)
+- [Casos de uso](proyecto-final/casos-de-uso.md)
+- [Requisitos y entregables](proyecto-final/requisitos-y-entregables.md)
+- [Guía de presentación](proyecto-final/guia-de-presentacion.md)
+
+### Plantillas
+- [Índice de plantillas](plantillas/index.md)
+- [Dockerfile base](plantillas/dockerfile-base.md)
+- [Dockerfile multi-stage](plantillas/dockerfile-multistage.md)
+- [docker-compose.yml](plantillas/docker-compose.yml)
+- [.dockerignore](plantillas/dockerignore.md)
+- [GitHub Actions CI/CD](plantillas/github-actions-ci-cd.yml)
+- [Helm Chart values](plantillas/helm-values.yaml)
+- [Checklist de seguridad](plantillas/checklist-seguridad.md)
+
+### Recursos
+- [Glosario](recursos/glosario.md)
+- [Herramientas y CLI](recursos/herramientas.md)
+- [Lecturas y referencias](recursos/lecturas.md)
+- [Troubleshooting común](recursos/troubleshooting.md)
 
 ---
 
