@@ -1,7 +1,7 @@
 site_name: "Curso Docker Fundamentals"
-site_description: "Curso práctico de Docker en 5 días y 30 horas - Contenedores, Kubernetes, CI/CD, Seguridad, Observabilidad"
+site_description: "Curso práctico de Docker - Contenedores, Kubernetes, CI/CD, Seguridad, Observabilidad"
 site_author: "Guillem Hernández Sola"
-site_url: "https://docs.agile611.com/curso-docker-fundamentals/"
+site_url: "https://docs.agile611.com/curso-docker/"
 
 repo_name: "agile611/curso-docker"
 repo_url: "https://github.com/agile611/curso-docker"

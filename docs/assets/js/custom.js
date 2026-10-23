@@ -8,23 +8,23 @@
     },
     {
       path: "dia-01-fundamentos",
-      title: "1 · Fundamentos"
+      title: "1 · Fundamentos y ciclo de vida"
     },
     {
-      path: "dia-02-tecnicas",
-      title: "2 · Técnicas y formatos"
+      path: "dia-02-redes-almacenamiento-compose",
+      title: "2 · Redes, almacenamiento y Compose"
     },
     {
-      path: "dia-03-evaluacion-y-seguridad",
-      title: "3 · Evaluación y seguridad"
+      path: "dia-03-seguridad-ci-cd",
+      title: "3 · Seguridad, CI/CD y Supply Chain"
     },
     {
-      path: "dia-04-aplicaciones",
-      title: "4 · Aplicaciones profesionales"
+      path: "dia-04-orquestacion-produccion",
+      title: "4 · Orquestación y producción"
     },
     {
-      path: "dia-05-proyecto",
-      title: "5 · Proyecto e integración"
+      path: "dia-05-proyecto-final",
+      title: "5 · Proyecto final integrador"
     },
     {
       path: "proyecto-final",
@@ -32,11 +32,7 @@
     },
     {
       path: "plantillas",
-      title: "Plantillas de trabajo"
-    },
-    {
-      path: "evaluacion",
-      title: "Evaluación del curso"
+      title: "Plantillas"
     },
     {
       path: "recursos",
@@ -44,7 +40,7 @@
     }
   ];
 
-  const defaultTitle = "Curso de Prompt Engineering";
+  const defaultTitle = "Curso Docker Fundamentals";
 
   function getModuleTitle() {
     /*
