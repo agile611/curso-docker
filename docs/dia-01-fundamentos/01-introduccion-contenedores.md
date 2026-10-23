@@ -17,7 +17,7 @@
 | 15 min | Presentaciones + encuesta rápida (Mentimeter/Forms) |
 | 30 min | Teoría: contenedores vs VMs, namespaces, cgroups, union FS |
 | 15 min | Demo en vivo: `docker run`, `docker exec`, `docker inspect` |
-| 30 min | Laboratorio guiado 1.1 (ver [índice día 1](../index.md#laboratorio-11-primeros-pasos)) |
+| 30 min | Laboratorio guiado 1.1 (ver [índice día 1](index.md)) |
 | 15 min | Preguntas + autoevaluación escrita (5 preguntas) |
 | 15 min | Break |
 

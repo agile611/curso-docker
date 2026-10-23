@@ -823,7 +823,7 @@ Need unified observability for metrics, logs, traces across Swarm and K8s.
 
 ## Preparación día 5
 
-- Revisar: [Día 5 índice](../dia-05-proyecto-final/index.md)
+- Revisar: [Día 5 índice](../dia-05-proyecto-final/00-proyecto-final.md)
 - Traer: Todo el repo validado, pipeline verde, dashboards funcionando.
 - Dudas: Integración final, presentación, transferencia al trabajo.
 

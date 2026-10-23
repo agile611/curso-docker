@@ -580,15 +580,15 @@ helm install mi-app ./charts/curso-app -n production --create-namespace
 
 ## Pipeline
 
-Ver [.github/workflows/ci.yml](.github/workflows/ci.yml)
+Ver `.github/workflows/ci.yml`
 
 ## Documentación
 
-- [ADR 001: Compose Strategy](docs/adr/001-compose-strategy.md)
-- [ADR 002: Hardening Level](docs/adr/002-hardening-level.md)
-- [ADR 003: Security Pipeline](docs/adr/003-security-pipeline.md)
-- [Runbook: Deploy Staging](docs/runbooks/deploy-staging.md)
-- [Runbook: Rotate Secrets](docs/runbooks/rotate-secrets.md)
+- ADR 001: Compose Strategy (`docs/adr/001-compose-strategy.md`)
+- ADR 002: Hardening Level (`docs/adr/002-hardening-level.md`)
+- ADR 003: Security Pipeline (`docs/adr/003-security-pipeline.md`)
+- Runbook: Deploy Staging (`docs/runbooks/deploy-staging.md`)
+- Runbook: Rotate Secrets (`docs/runbooks/rotate-secrets.md`)
 ```
 
 ---

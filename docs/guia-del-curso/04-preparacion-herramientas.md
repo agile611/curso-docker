@@ -217,7 +217,7 @@ security(image): update base to alpine:3.20
 - [ ] Repo base clonado + rama personal creada.
 - [ ] Editor configurado (VS Code + extensiones: Docker, YAML, GitLens, Markdown).
 - [ ] `verify-env.sh` pasa sin errores.
-- [ ] Leído [Programa y calendario](programa.md) y [Objetivos](objetivos.md).
+- [ ] Leído [Programa y calendario](01-programa-calendario.md) y [Objetivos](02-objetivos-aprendizaje.md).
 
 ---
 

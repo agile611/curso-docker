@@ -66,7 +66,7 @@ Cada laboratorio incluye un script `validate.sh` que verifica:
 
 ## Evaluación sumativa (final)
 
-Ver [Objetivos de aprendizaje → Criterios de evaluación](objetivos.md#criterios-de-evaluación).
+Ver [Objetivos de aprendizaje → Criterios de evaluación](02-objetivos-aprendizaje.md).
 
 ## Accesibilidad y adaptaciones
 
