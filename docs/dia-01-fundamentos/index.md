@@ -10,6 +10,120 @@
 
 ---
 
+## 0. Instalación y configuración de Docker en Ubuntu 24.04
+
+### 0.1 Instalación oficial mediante get.docker.com
+
+El método recomendado por Docker para instalar la versión más reciente estable en Ubuntu 24.04 (Noble Numbat) es usar el script de conveniencia oficial:
+
+```bash
+# 1. Actualizar índice de paquetes e instalar dependencias necesarias
+sudo apt-get update
+sudo apt-get install -y ca-certificates curl gnupg lsb-release
+
+# 2. Añadir la clave GPG oficial de Docker
+sudo install -m 0755 -d /etc/apt/keyrings
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+sudo chmod a+r /etc/apt/keyrings/docker.gpg
+
+# 3. Añadir el repositorio oficial de Docker para Ubuntu 24.04 (noble)
+echo \
+  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
+  $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
+  sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+
+# 4. Actualizar e instalar Docker Engine, CLI, containerd y plugins
+sudo apt-get update
+sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+
+# 5. Verificar la instalación
+docker version
+```
+
+**Alternativa rápida (script oficial):**
+```bash
+# Descargar y ejecutar el script de instalación oficial
+curl -fsSL https://get.docker.com -o get-docker.sh
+sudo sh get-docker.sh
+```
+
+> ⚠️ **Nota:** El script `get.docker.com` detecta automáticamente la distribución y versión, pero el método manual (pasos 1-5) ofrece más control y transparencia sobre qué se instala.
+
+### 0.2 Configuración para usar Docker sin sudo
+
+Por defecto, Docker requiere privilegios de root. Para ejecutar comandos como `docker ps` sin `sudo`, añade tu usuario al grupo `docker`:
+
+```bash
+# 1. Crear el grupo docker (si no existe)
+sudo groupadd docker
+
+# 2. Añadir tu usuario al grupo docker
+sudo usermod -aG docker $USER
+
+# 3. Aplicar los cambios de grupo (elige una opción):
+# Opción A: Cerrar sesión y volver a entrar (recomendado)
+# Opción B: Ejecutar en la terminal actual
+newgrp docker
+
+# 4. Verificar que funciona sin sudo
+docker run --rm hello-world
+docker ps
+```
+
+**Explicación:** El socket de Docker (`/var/run/docker.sock`) pertenece al grupo `docker` con permisos `rw-`. Al añadir tu usuario a este grupo, obtienes acceso de lectura/escritura al socket y puedes gestionar contenedores sin `sudo`.
+
+> ⚠️ **Seguridad:** El grupo `docker` otorga privilegios equivalentes a root. Solo añade usuarios de confianza. En entornos de producción, considera usar [Rootless mode](https://docs.docker.com/engine/security/rootless/) en su lugar.
+
+### 0.3 Configuración adicional recomendada
+
+```bash
+# Habilitar inicio automático de Docker al arrancar
+sudo systemctl enable docker.service
+sudo systemctl enable containerd.service
+
+# Configurar Docker para usar systemd como cgroup driver (recomendado para Kubernetes)
+sudo mkdir -p /etc/docker
+cat <<EOF | sudo tee /etc/docker/daemon.json
+{
+  "exec-opts": ["native.cgroupdriver=systemd"],
+  "log-driver": "json-file",
+  "log-opts": {
+    "max-size": "100m",
+    "max-file": "3"
+  },
+  "storage-driver": "overlay2"
+}
+EOF
+
+# Reiniciar Docker para aplicar cambios
+sudo systemctl daemon-reload
+sudo systemctl restart docker
+
+# Verificar configuración
+docker info | grep -i cgroup
+```
+
+### 0.4 Verificación completa post-instalación
+
+```bash
+# Verificar versión instalada
+docker version --format '{{.Server.Version}}'
+
+# Probar funcionamiento básico
+docker run --rm alpine:3.20 echo "Docker funciona correctamente"
+
+# Verificar buildx (multi-arch)
+docker buildx version
+
+# Verificar compose plugin
+docker compose version
+
+# Información del sistema
+docker info --format '{{.OperatingSystem}} {{.Architecture}} - {{.CPUs}} CPUs - {{.MemTotal}}'
+```
+
+---
+
 ## 1.1 Introducción: contenedores vs VMs, arquitectura Docker
 
 ### Conceptos clave
@@ -25,7 +139,7 @@
 
 ```
 ┌─────────────┐     REST API      ┌─────────────┐
-│  docker CLI │ ◄────────────────► │  dockerd    │
+│  docker CLI │ ◄───────────────► │  dockerd    │
 └─────────────┘                   └──────┬──────┘
                                           │
                     ┌─────────────────────┼─────────────────────┐
@@ -40,6 +154,17 @@
              │    runc     │  (OCI runtime)
              └─────────────┘
 ```
+
+### Componentes de la arquitectura Docker
+
+| Componente | Descripción | Rol |
+|------------|-------------|-----|
+| **docker CLI** | Interfaz de línea de comandos (`docker` binary). Envía peticiones REST API al daemon `dockerd`. Es el punto de entrada para usuarios y scripts. | Cliente |
+| **dockerd (Docker Engine)** | Daemon principal que expone la REST API, gestiona imágenes, contenedores, redes, volúmenes y orquesta los plugins. Delega la ejecución de contenedores a `containerd`. | Orquestador principal |
+| **containerd** | Runtime de contenedores de alto nivel (graduado CNCF). Gestiona el ciclo de vida completo: pull/push de imágenes, snapshots, ejecución y supervisión de contenedores. Usa `runc` como runtime por defecto. | Gestor de ciclo de vida de contenedores |
+| **BuildKit** | Motor de construcción de imágenes de nueva generación (integrado en Docker 18.09+). Paraleliza pasos, cache inteligente, exporta a múltiples formatos (OCI, Docker), soporta build multi-arch y secretos en build-time. | Constructor de imágenes |
+| **runc** | Implementación de referencia del **OCI Runtime Spec** (CLI en Go). Crea y ejecuta contenedores aplicando namespaces, cgroups, capabilities, seccomp, etc. Es el componente que realmente "lanza" el proceso contenedor. | Runtime de bajo nivel (OCI) |
+| **OCI Runtime Spec** | Especificación abierta (Open Container Initiative) que define cómo debe comportarse un runtime de contenedores: `create`, `start`, `stop`, `delete`, `state`. `runc`, `crun`, `youki`, `kata-runtime` la implementan. | Estándar de interfaz runtime |
 
 ### Laboratorio 1.1: Primeros pasos
 
