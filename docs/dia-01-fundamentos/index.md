@@ -138,9 +138,9 @@ docker info --format '{{.OperatingSystem}} {{.Architecture}} - {{.CPUs}} CPUs - 
 ### Arquitectura Docker
 
 ```
-┌─────────────┐     REST API      ┌─────────────┐
-│  docker CLI │ ◄───────────────► │  dockerd    │
-└─────────────┘                   └──────┬──────┘
+┌─────────────┐     REST API      ┌───────-──────┐
+│  docker CLI │ ◄───────────────► │   dockerd    │
+└─────────────┘                   └─────--┬──────┘
                                           │
                     ┌─────────────────────┼─────────────────────┐
                     ▼                     ▼                     ▼
