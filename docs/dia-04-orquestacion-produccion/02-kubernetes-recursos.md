@@ -114,8 +114,7 @@ kubectl get nodes -o wide
 
 Todos los nodos deben aparecer como `Ready`.
 
-> [!WARNING]
-> **Antes de continuar:** No sigas con las prácticas si alguno de los nodos permanece en estado `NotReady`.
+> **⚠️ Antes de continuar:** No sigas con las prácticas si alguno de los nodos permanece en estado `NotReady`.
 
 
 ## Recursos core Kubernetes
