@@ -23,6 +23,100 @@
 | 10 min | Preguntas + checkpoint |
 
 ---
+## Configuración del entorno y creación del clúster
+
+En esta sección instalaremos todas las herramientas necesarias (`Docker`, `kubectl`, `Helm` y `k3d`) y levantaremos el clúster listo para las prácticas.
+
+### 1. Instalar las herramientas necesarias
+
+#### Instalar Docker
+
+```bash
+sudo apt update
+sudo apt install -y docker.io curl ca-certificates
+sudo systemctl enable --now docker
+sudo usermod -aG docker "$USER"
+
+```
+
+Cierra la sesión y vuelve a iniciarla. Después, comprueba que Docker funciona correctamente:
+
+```bash
+docker run --rm hello-world
+
+```
+
+#### Instalar kubectl y Helm
+
+```bash
+sudo snap install kubectl --classic
+sudo snap install helm --classic
+
+```
+
+Comprueba las versiones:
+
+```bash
+kubectl version --client
+helm version
+
+```
+
+#### Instalar k3d
+
+```bash
+curl -fsSLo /tmp/install-k3d.sh   https://raw.githubusercontent.com/k3d-io/k3d/main/install.sh
+
+sudo bash /tmp/install-k3d.sh
+
+```
+
+Comprueba la instalación:
+
+```bash
+k3d version
+
+```
+
+---
+
+### 2. Crear y verificar el clúster con k3d
+
+A continuación, crearemos un clúster con un nodo de control y tres nodos de trabajo.
+
+#### Crear el clúster
+
+```bash
+k3d cluster create curso   --servers 1   --agents 3   --api-port "127.0.0.1:6550"   -p "8080:80@loadbalancer"   -p "8443:443@loadbalancer"   --wait
+
+```
+
+#### Comprobar el contexto
+
+```bash
+kubectl config current-context
+
+```
+
+La salida esperada es:
+
+```text
+k3d-curso
+
+```
+
+#### Comprobar los nodos
+
+```bash
+kubectl get nodes -o wide
+
+```
+
+Todos los nodos deben aparecer como `Ready`.
+
+> [!WARNING]
+> **Antes de continuar:** No sigas con las prácticas si alguno de los nodos permanece en estado `NotReady`.
+
 
 ## Recursos core Kubernetes
 

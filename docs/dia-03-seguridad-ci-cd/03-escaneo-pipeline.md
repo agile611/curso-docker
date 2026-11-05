@@ -281,32 +281,32 @@ policies:
 │                         GITHUB ACTIONS PIPELINE                             │
 ├─────────────────────────────────────────────────────────────────────────────┤
 │                                                                             │
-│  ┌─────────┐    ┌──────────────┐    ┌──────┐    ┌─────────┐    ┌────────┐  │
-│  │  LINT   │───►│   BUILD      │───►│ TEST │───►│  SCAN   │───►│ SIGN   │  │
-│  │         │    │  (multi-arch)│    │      │    │         │    │        │  │
-│  │ hadolint│    │ buildx       │    │unit  │    │ Trivy   │    │ cosign │  │
-│  │ yamllint│    │ push GHCR    │    │integ │    │ Syft    │    │ keyless│  │
-│  │ checkov │    │ cache GHA    │    │      │    │ SBOM    │    │ SLSA   │  │
-│  └─────────┘    └──────────────┘    └──────┘    └─────────┘    └────────┘  │
-│       │               │                │           │            │          │
-│       ▼               ▼                ▼           ▼            ▼          │
-│  ┌─────────────────────────────────────────────────────────────────────┐   │
-│  │                    ARTIFACTS                                        │   │
-│  │  • Imágenes multi-arch en GHCR (tag: semver, sha, latest)          │   │
-│  │  • SBOM (SPDX + CycloneDX)                                         │   │
-│  │  • Provenance (SLSA)                                               │   │
-│  │  • Firmas cosign (keyless)                                         │   │
-│  │  • SARIF reports (GitHub Security tab)                             │   │
-│  └─────────────────────────────────────────────────────────────────────┘   │
-│                                    │                                       │
-│                                    ▼                                       │
-│  ┌─────────────────────────────────────────────────────────────────────┐   │
-│  │                    DEPLOY STAGING                                   │   │
-│  │  • kind/k3d cluster                                                │   │
-│  │  • Helm deploy                                                     │   │
-│  │  • Smoke tests                                                     │   │
-│  │  • Integration tests                                               │   │
-│  └─────────────────────────────────────────────────────────────────────┘   │
+│  ┌─────────┐    ┌──────────────┐    ┌──────┐    ┌─────────┐    ┌────────┐   │
+│  │  LINT   │───►│   BUILD      │───►│ TEST │───►│  SCAN   │───►│ SIGN   │   │
+│  │         │    │  (multi-arch)│    │      │    │         │    │        │   │
+│  │ hadolint│    │ buildx       │    │unit  │    │ Trivy   │    │ cosign │   │
+│  │ yamllint│    │ push GHCR    │    │integ │    │ Syft    │    │ keyless│   │
+│  │ checkov │    │ cache GHA    │    │      │    │ SBOM    │    │ SLSA   │   │
+│  └─────────┘    └──────────────┘    └──────┘    └─────────┘    └────────┘   │
+│       │               │                │           │            │           │
+│       ▼               ▼                ▼           ▼            ▼           │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │                    ARTIFACTS                                        │    │
+│  │  • Imágenes multi-arch en GHCR (tag: semver, sha, latest)           │    │
+│  │  • SBOM (SPDX + CycloneDX)                                          │    │
+│  │  • Provenance (SLSA)                                                │    │
+│  │  • Firmas cosign (keyless)                                          │    │ 
+│  │  • SARIF reports (GitHub Security tab)                              │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│                                    │                                        │
+│                                    ▼                                        │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │                    DEPLOY STAGING                                   │    │
+│  │  • kind/k3d cluster                                                 │    │
+│  │  • Helm deploy                                                      │    │
+│  │  • Smoke tests                                                      │    │
+│  │  • Integration tests                                                │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
 │                                                                             │
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
